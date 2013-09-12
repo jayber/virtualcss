@@ -1,0 +1,14 @@
+.header {
+    background: #999999 url("/assets/images/monitor.png") no-repeat;
+    height: 128px;
+    padding-left: 138px;
+    color: white;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+body {
+    width: 940px;
+    margin: auto;
+    font-family: Verdana, sans-serif;
+}
