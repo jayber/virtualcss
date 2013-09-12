@@ -1,0 +1,12 @@
+1. Write "perfect" meaningful html without display compromises (e.g. no extra divs)
+2. Write "perfect" CSS including
+    no duplication in properties for different "classes"
+    no need to create either fallback properties for older browser versions or alternative browser specific implementations
+    adding your own properties so far unimplemented by browsers and still have them display the way you want
+3. Write selectors to apply styling and events to DOM
+4. Implement event handling code in javascript
+5. JS library does all the conversion of CSS properties to real properties, including
+    all fallback or alternate browser version properties
+    add elements to DOM in order to support style or functionality that pure semantic HTML would not
+6. Marry client side events to server side events for easy event processing
+This file was modified by IntelliJ IDEA 12.1.4 for binding GitHub repository
