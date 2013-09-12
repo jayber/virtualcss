@@ -1,14 +1,46 @@
-.header {
-    background: #999999 url("/assets/images/monitor.png") no-repeat;
-    height: 128px;
-    padding-left: 138px;
-    color: white;
-    display: table-cell;
-    vertical-align: middle;
-}
-
 body {
     width: 940px;
     margin: auto;
     font-family: Verdana, sans-serif;
+}
+
+.header {
+    /*position: fixed;*/
+    background: #999999 url("/assets/images/monitor2.png") no-repeat;
+    height: 128px;
+    padding-left: 134px;
+    color: white;
+
+    /*shouldn't the below be just - text-vertical-align: middle;?*/
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.content {
+    /*padding-top: 138px;*/
+    /*column: 1;*/
+    float: left;
+    width: 750px;
+}
+
+.aside {
+    /*column: 2;*/
+    float: left;
+    width: 100px;
+    margin-top: 10px;
+}
+
+.article {
+    margin-top: 10px;
+}
+
+.article h1 {
+    text-transform: capitalize;
+    font-weight: bold;
+}
+
+.footer {
+    clear: left;
+    font-size: 8pt;
+    margin: 10px 0px;
 }
