@@ -1,33 +1,56 @@
 body {
-    width: 940px;
-    margin: auto;
     font-family: Verdana, sans-serif;
+    margin: 0;
 }
 
-.header {
+#header {
+    background-color: #999999;
+
     /*position: fixed;*/
-    background: #999999 url("/assets/images/monitor2.png") no-repeat;
+    /*overflow: hidden;*/
+}
+
+#header .content {
+    background: url("/assets/images/monitor2.png") no-repeat;
     height: 128px;
     padding-left: 134px;
     color: white;
 
-    /*shouldn't the below be just - text-vertical-align: middle;?*/
+    placement: center text-vertical-align : middle
+    /*
     display: table-cell;
-    vertical-align: middle;
+    vertical-align: middle;*/
 }
 
-.content {
-    /*padding-top: 138px;*/
-    /*column: 1;*/
+.header em {
+    font-weight: bold;
+}
+
+#main {
+    margin: 10px 5px 5px;
+
+    placement: center flow : horizontal;
+}
+
+#main .articles {
+    /*column: 1;
     float: left;
-    width: 750px;
+    width: 60%;
+    */
+    width-expand-ratio: 100
 }
 
 .aside {
-    /*column: 2;*/
+    /*column: 2;
     float: left;
-    width: 100px;
-    margin-top: 10px;
+    */
+    width: 200px;
+}
+
+.promo {
+    border: #000 solid 1px;
+    margin: 10px;
+    padding: 5px;
 }
 
 .article {

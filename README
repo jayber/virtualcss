@@ -9,4 +9,3 @@
     all fallback or alternate browser version properties
     add elements to DOM in order to support style or functionality that pure semantic HTML would not
 6. Marry client side events to server side events for easy event processing
-This file was modified by IntelliJ IDEA 12.1.4 for binding GitHub repository

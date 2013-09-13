@@ -4,7 +4,8 @@ import play.api.mvc._
 
 object Application extends Controller {
 
-  def index = Action {
-    Redirect("/assets/html/perfect.html")
+  def index(csspath: String) = Action {
+    Ok(views.html.perfect(routes.Assets.at(s"$csspath")))
   }
+
 }
