@@ -8,4 +8,6 @@ object Application extends Controller {
     Ok(views.html.perfect(routes.Assets.at(s"$csspath")))
   }
 
+  def virtualCssJs() =
+
 }

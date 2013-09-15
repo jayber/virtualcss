@@ -5,10 +5,13 @@
     <head>
         <title>Is this a perfect page of html?</title>
         <link rel="stylesheet" media="screen" href="@csspath">
+        <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/virtualcss.js")" type="text/javascript"></script>
     </head>
     <body>
+        <div id="output"></div>
         <div id="header">
-            <div class="content">This heading should have <em>vertically aligned text</em>, its background should  <em>
+            <div class="content">This heading should have <em>vertically aligned text</em>, its background should <em>
                 span the page width</em>, and it should remain <em>fixed</em>
                 at the top of the page while the rest of the page scrolls. The image and text should
                 be the same width as the content below.
