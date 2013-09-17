@@ -3,9 +3,12 @@ package controllers
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WS
-import play.api.libs.ws.WS.WSRequestHolder
 import scala.concurrent.Future
-import scala.collection.mutable
+import java.io.InputStream
+import scala._
+import play.api.libs.ws.WS.WSRequestHolder
+import scala.io.Source
+import play.api.libs.json.Json
 
 object VirtualCSS extends Controller {
 
@@ -22,26 +25,42 @@ object VirtualCSS extends Controller {
   }
 
   def processCssToJs(css: String) = {
-    val cssText: String = removeComments(css)
-    val sb: StringBuilder = new mutable.StringBuilder()
-    val rules = """(?m)(^[^\{]*)\{([^\}]*)\}""".r
+    val virtualPropsMap = parseCSS(css)
 
-    for (rules(selector, rule) <- rules findAllIn cssText) {
-      for (line <- rule.split(";")) {
-        sb.append(s"selector:${selector.trim} property:${line.trim}\n")
-      }
+
+    val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("virtualProperties.JSON")
+    val jsonText: String = try {
+      Source.fromInputStream(inputStream, "utf-8").mkString("")
     }
-    sb.toString()
+    finally inputStream.close()
+
+    val json = Json.parse(jsonText)
+
+    json for
+      virtualPropsMap.filterKeys(.as).map(that => map(that._1))
+
   }
 
+  def parseCSS(css: String): Map[String, List[(String, String)]] = {
+    val cssText: String = removeComments(css)
+    val rules = """(?m)(^[^\{]*)\{([^\}]*)\}""".r
+    val line = """([^:]*):(.*)""".r
+
+    var selectorStylePairs: Map[String, List[(String, String)]] = Map()
+    for (rules(selector, rule) <- rules findAllIn cssText) {
+      for (line(property, value) <- rule.split(";")) {
+        selectorStylePairs += (property.trim -> ((selector.trim, value.trim) :: selectorStylePairs.getOrElse(property.trim, Nil)))
+      }
+    }
+    selectorStylePairs
+  }
 
   def removeComments(css: String): String = {
-    val cssText: String = css.replaceAll( """(?s)/\*.*?\*/""", "")
-    cssText
+    css.replaceAll( """(?s)/\*.*?\*/""", "")
   }
 
   def getCssText(cssPath: String) = {
-    val url: WSRequestHolder = WS.url(s"http://localhost:9000${routes.Assets.at(s"$cssPath").url}")
+    val url: WSRequestHolder = WS.url(cssPath)
     url.get().map(response => response.body)
   }
 }
