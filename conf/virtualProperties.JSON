@@ -1,6 +1,9 @@
 {
     "layout": [
-        "overflow: hidden;",
-        "function(this) {alert(this)}"
-    ]
+        "apply this to CSS file before downloading",
+        "this.style.border = \"1px solid red\""
+    ],
+    "position": ["", "if (args==\"fixed\") { this.style.overflow = \"hidden\"; $(this).next().paddingTop = \"1000px\";}"],
+    "text-vertical-align": ["", "if (args==\"middle\") { this.style.display = \"table-cell\"; \nthis.style.verticalAlign = \"middle\"; }"],
+    "placement": ["", "if (args==\"center\") { $(\"body\").margin = \"auto\"; }"]
 }

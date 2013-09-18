@@ -1,0 +1,10 @@
+@(values: Iterable[(String, String, String)])
+
+$(function() {
+@for(value <- values) {
+    $('@value._1').each(function(index) {
+    var args = "@value._2";
+    @Html(value._3)
+    })
+}
+    });

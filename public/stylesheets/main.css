@@ -1,18 +1,12 @@
 body {
+    width: 940px;
     font-family: Verdana, sans-serif;
     margin: 0;
 }
 
-#outut {
-    border: #000000 solid 1px;
-    width: 100%;
-}
-
 #header {
     background-color: #999999;
-
     position: fixed;
-    /*overflow: hidden;*/
 }
 
 #header .content {
