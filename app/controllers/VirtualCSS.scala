@@ -8,7 +8,6 @@ import java.io.InputStream
 import scala._
 import play.api.libs.ws.WS.WSRequestHolder
 import scala.io.Source
-import scala.collection.immutable
 
 object VirtualCSS extends Controller {
 
@@ -24,24 +23,33 @@ object VirtualCSS extends Controller {
     cssTextFuture.map(processCssToJs)
   }
 
-  def processCssToJs(css: String): immutable.Iterable[(String, String, String)] = {
-    val virtualPropsMap = parseCSS(css)
+  def processCssToJs(cssText: String): Iterable[(String, String, String)] = {
+    val css = parseCSS(cssText)
 
-    val json = loadVirtualCSSDefinitions
+    val virtualCSSDefinitions = loadVirtualCSSDefinitions
 
-    json.map(_ match {
+    getJSForCSS(virtualCSSDefinitions, css)
+  }
+
+  def getJSForCSS(virtualCSSDefinitions: Option[Any], css: Map[String, List[(String, String)]]): Iterable[(String, String, String)] = {
+    virtualCSSDefinitions.map(_ match {
       case jsonMap: Map[_, _] => {
-        jsonMap.filter(entry => virtualPropsMap.contains(entry._1.asInstanceOf[String])).
-          map(entry => {
-          val property: String = entry._1.asInstanceOf[String]
-          val implementations = entry._2.asInstanceOf[List[String]]
-          extractJs(property, virtualPropsMap(property), implementations)
-        }).flatten
+        jsonMap.filter(entry => css.contains(entry._1.asInstanceOf[String])).
+          map(extractDefinedJS(css)).flatten
       }
       case _ => throw new RuntimeException("json does not contain Map")
     }).get
   }
 
+  def extractDefinedJS(css: Map[String, List[(String, String)]]): ((Any, Any)) => List[(String, String, String)] = {
+    entry => {
+      val property: String = entry._1.asInstanceOf[String]
+      val implementations = entry._2.asInstanceOf[List[String]]
+      css(property).map(selectorAndValue => {
+        (selectorAndValue._1, selectorAndValue._2, implementations(1))
+      })
+    }
+  }
 
   def loadVirtualCSSDefinitions = {
     val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("virtualProperties.JSON")
@@ -51,12 +59,6 @@ object VirtualCSS extends Controller {
     finally inputStream.close()
 
     scala.util.parsing.json.JSON.parseFull(jsonText)
-  }
-
-  def extractJs(property: String, selectorsAndValues: List[(String, String)], implementations: List[String]) = {
-    selectorsAndValues.map(selectorAndValue => {
-      (selectorAndValue._1, selectorAndValue._2, implementations(1))
-    })
   }
 
   def parseCSS(css: String): Map[String, List[(String, String)]] = {
