@@ -13,13 +13,11 @@ object JsParser {
   def parseJS(css: String): Map[String, String] = {
     val cssText: String = removeComments(css)
     val block = """(?s).*?\{(.*)\}""".r
-    val definition = """([^:]*):(.*)|\z""".r
+    val definition = """(?s)([^:]*?):([^\{]*?\{.*?\})(,|$)""".r
 
     var propertyFunctionPairs: Map[String, String] = Map()
     for (block(innerBlock) <- block findAllIn cssText) {
-      println( s"""inner:[\n$innerBlock\n]""")
-      for (definition(property, value) <- innerBlock.split( """(?s)(.*?\{.*?\}),|\z""")) {
-        println(s"$property: $value")
+      for (definition(property, value, _) <- definition findAllIn innerBlock) {
         propertyFunctionPairs += property.trim -> value.trim
       }
     }

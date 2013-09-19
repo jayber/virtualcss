@@ -33,19 +33,16 @@ object VirtualCSS extends Controller {
 
   def getJSForCSS(virtualCSSDefinitions: Option[Any], css: Map[String, List[(String, String)]]): Iterable[(String, String, String)] = {
     virtualCSSDefinitions.map(_.asInstanceOf[Map[_, _]].filter(entry => css.contains(entry._1.asInstanceOf[String])).
-      map(extractDefinedJS(css)).flatten
+      map(entry => {
+      val property = entry._1.asInstanceOf[String]
+      val implementation = entry._2.asInstanceOf[String]
+      css(property).map(selectorAndValue => {
+        (selectorAndValue._1, selectorAndValue._2, implementation)
+      })
+    }).flatten
     ).get
   }
 
-  def extractDefinedJS(css: Map[String, List[(String, String)]]): ((Any, Any)) => List[(String, String, String)] = {
-    entry => {
-      val property: String = entry._1.asInstanceOf[String]
-      val implementation = entry._2.asInstanceOf[sun.org.mozilla.javascript.internal.BaseFunction]
-      css(property).map(selectorAndValue => {
-        (selectorAndValue._1, selectorAndValue._2, implementation.getPrototype.toString)
-      })
-    }
-  }
 
   def loadVirtualCSSDefinitions = {
     val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("virtualProperties.js")
