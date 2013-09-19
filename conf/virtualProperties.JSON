@@ -1,9 +1,0 @@
-{
-    "layout": [
-        "apply this to CSS file before downloading",
-        "$(this).children().css({'float':'left', 'width':'480px'});\n$(this).next().css('clear','both')"
-    ],
-    "position": ["", "if (args==\"fixed\") { this.style.overflow = \"hidden\"; \n$(this).next().css('padding-top','138px');}"],
-    "text-vertical-align": ["", "if (args==\"middle\") { this.style.display = \"table-cell\"; \nthis.style.verticalAlign = \"middle\"; }"],
-    "placement": ["", "if (args==\"center\") { $('body').css('margin','0 auto'); }"]
-}

@@ -32,33 +32,29 @@ object VirtualCSS extends Controller {
   }
 
   def getJSForCSS(virtualCSSDefinitions: Option[Any], css: Map[String, List[(String, String)]]): Iterable[(String, String, String)] = {
-    virtualCSSDefinitions.map(_ match {
-      case jsonMap: Map[_, _] => {
-        jsonMap.filter(entry => css.contains(entry._1.asInstanceOf[String])).
-          map(extractDefinedJS(css)).flatten
-      }
-      case _ => throw new RuntimeException("json does not contain Map")
-    }).get
+    virtualCSSDefinitions.map(_.asInstanceOf[Map[_, _]].filter(entry => css.contains(entry._1.asInstanceOf[String])).
+      map(extractDefinedJS(css)).flatten
+    ).get
   }
 
   def extractDefinedJS(css: Map[String, List[(String, String)]]): ((Any, Any)) => List[(String, String, String)] = {
     entry => {
       val property: String = entry._1.asInstanceOf[String]
-      val implementations = entry._2.asInstanceOf[List[String]]
+      val implementation = entry._2.asInstanceOf[sun.org.mozilla.javascript.internal.BaseFunction]
       css(property).map(selectorAndValue => {
-        (selectorAndValue._1, selectorAndValue._2, implementations(1))
+        (selectorAndValue._1, selectorAndValue._2, implementation.getPrototype.toString)
       })
     }
   }
 
   def loadVirtualCSSDefinitions = {
-    val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("virtualProperties.JSON")
+    val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("virtualProperties.js")
     val jsonText: String = try {
       Source.fromInputStream(inputStream, "utf-8").mkString("")
     }
     finally inputStream.close()
 
-    scala.util.parsing.json.JSON.parseFull(jsonText)
+    JsParser.parse(jsonText)
   }
 
   def parseCSS(css: String): Map[String, List[(String, String)]] = {

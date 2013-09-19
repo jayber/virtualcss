@@ -1,7 +1,6 @@
 body {
     width: 940px;
     font-family: Verdana, sans-serif;
-    margin: 0 auto;
 }
 
 #header {
@@ -41,7 +40,8 @@ body {
     float: left;
     width: 60%;
     */
-    width-expand-ratio: 100;
+    width: 740px;
+    /*width-expand-ratio: 100;*/
 }
 
 .aside {
