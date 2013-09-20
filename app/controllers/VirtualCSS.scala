@@ -9,12 +9,13 @@ object VirtualCSS extends Controller {
   def virtualCssJs(cssPath: String) = Action {
     Async {
       val cssFuture = CssParser.loadCssProperties(cssPath)
-      val jsFuture = JsParser.loadVirtualCssDefinitions.flatMap(virtualCssDefinitions => {
+      val (jsText, definitions) = JsParser.loadVirtualCssDefinitions
+      val jsFuture = definitions.flatMap(virtualCssDefinitions => {
         cssFuture.map(css => {
           combinePropertiesAndJS(virtualCssDefinitions, css)
         })
       })
-      jsFuture.map(jsStatementDefinitions => Ok(views.html.jsTemplate(jsStatementDefinitions)))
+      jsFuture.map(jsStatementDefinitions => Ok(views.html.jsTemplate(jsStatementDefinitions, jsText)))
     }
   }
 
@@ -22,9 +23,8 @@ object VirtualCSS extends Controller {
     styleProperties.filter(entry => virtualCSSDefinitions.contains(convertToCamelCase(entry._1))).map(entry => {
       val propertyName = convertToCamelCase(entry._1)
       val selectorAndValues = entry._2
-      val implementation = virtualCSSDefinitions(propertyName)
       selectorAndValues.map(selectorAndValue => {
-        (selectorAndValue._1, selectorAndValue._2, implementation)
+        (selectorAndValue._1, selectorAndValue._2, propertyName)
       })
     }).flatten
   }

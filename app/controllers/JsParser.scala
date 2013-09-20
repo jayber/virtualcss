@@ -8,13 +8,13 @@ import scala.concurrent.Future
 object JsParser {
 
   def loadVirtualCssDefinitions = {
-    val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("virtualProperties.js")
+    val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("public/javascripts/virtualProperties.js")
     val jsonText: String = try {
       Source.fromInputStream(inputStream, "utf-8").mkString("")
     }
     finally inputStream.close()
 
-    Future(JsParser.parse(jsonText))
+    (jsonText, Future(JsParser.parse(jsonText)))
   }
 
   def parse(css: String): Map[String, String] = {

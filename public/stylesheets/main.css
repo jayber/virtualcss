@@ -1,12 +1,16 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    width: 940px;
     font-family: Verdana, sans-serif;
 }
 
 #header {
     background-color: #999999;
     position: fixed;
-    width: 960px;
+    width: 100%;
 }
 
 #header .content {
@@ -15,6 +19,7 @@ body {
     padding-left: 134px;
     padding-right: 10px;
     color: white;
+    width: 960px;
 
     placement: center;
     text-vertical-align: middle;
@@ -23,7 +28,7 @@ body {
     vertical-align: middle;*/
 }
 
-.header em {
+#header em {
     font-weight: bold;
 }
 

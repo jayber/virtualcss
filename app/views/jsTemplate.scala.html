@@ -1,11 +1,12 @@
-@(values: Iterable[(String, String, String)])
-    @*This fill is actually producing javascript using scala template syntax = very confusing!*@
-$(function() {
-    @for(value <- values) {
-        $('@value._1').each(function(index) {
-        var args = "@value._2";
-        (@Html(value._3))
-        .call(this, args)
+@(values: Iterable[(String, String, String)], jsText: String)
+    @*This file is actually producing javascript using scala template syntax = very confusing!*@
+    @Html(jsText)
+
+    $(function() {
+    @for((selector, args, propertyName) <- values) {
+        $('@selector').each(function(index) {
+        var args = "@args";
+        definitions['@propertyName']($(this), args);
         })
     }
     });
