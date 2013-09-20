@@ -1,10 +1,11 @@
 @(values: Iterable[(String, String, String)])
-
+    @*This fill is actually producing javascript using scala template syntax = very confusing!*@
 $(function() {
-@for(value <- values) {
-    $('@value._1').each(function(index) {
-    var args = "@value._2";
-    @Html(value._3)
-    })
-}
+    @for(value <- values) {
+        $('@value._1').each(function(index) {
+        var args = "@value._2";
+        (@Html(value._3))
+        .call(this, args)
+        })
+    }
     });

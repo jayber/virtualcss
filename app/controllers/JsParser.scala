@@ -1,16 +1,23 @@
 package controllers
 
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import java.io.InputStream
+import scala.io.Source
+import scala.concurrent.Future
 
 object JsParser {
 
-  def parse(jsText: String) = {
+  def loadVirtualCssDefinitions = {
+    val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("virtualProperties.js")
+    val jsonText: String = try {
+      Source.fromInputStream(inputStream, "utf-8").mkString("")
+    }
+    finally inputStream.close()
 
-    val map: Map[String, String] = parseJS(jsText)
-
-    Some(map)
+    Future(JsParser.parse(jsonText))
   }
 
-  def parseJS(css: String): Map[String, String] = {
+  def parse(css: String): Map[String, String] = {
     val cssText: String = removeComments(css)
     val block = """(?s).*?\{(.*)\}""".r
     val definition = """(?s)([^:]*?):([^\{]*?\{.*?\})(,|$)""".r
