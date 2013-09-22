@@ -1,10 +1,15 @@
-package controllers
+package services
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WS.WSRequestHolder
 import play.api.libs.ws.WS
 
-object CssParser {
+object CssParser extends Parser {
+
+  def loadVirtualCssDefinitions = {
+
+    val csText: String = getFileText("virtualCss.css")
+  }
 
   def loadCssProperties(cssPath: String) = {
     val url: WSRequestHolder = WS.url(cssPath)

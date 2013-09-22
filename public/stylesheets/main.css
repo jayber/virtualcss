@@ -30,6 +30,7 @@ body {
 
 #header em {
     font-weight: bold;
+    thing: 1px solid #990000;
 }
 
 #main {

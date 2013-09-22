@@ -16,7 +16,7 @@ definitions = {
             container.css('display', 'table-cell');
             container.css('verticalAlign', 'middle');
             container.css('height', elem.height() + 'px');
-            container.css('width', elem.node.offsetWidth + 'px');
+            container.css('width', '500px');
         }
     },
     placement: function (elem, args) {

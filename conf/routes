@@ -5,7 +5,7 @@
 # Home page
 GET        /                     controllers.Application.index(csspath)
 
-GET        /virtualcss.js        controllers.VirtualCSS.virtualCssJs(csspath)
+GET        /virtualcss.js        controllers.VirtualCssController.virtualCssJs(csspath)
 
 # Map static resources from the /public folder to the /assets URL path
 GET        /assets/*file         controllers.Assets.at(path="/public", file)
