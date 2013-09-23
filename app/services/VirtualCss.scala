@@ -2,6 +2,8 @@ package services
 
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.ws.WS.WSRequestHolder
+import play.api.libs.ws.WS
 
 
 object VirtualCss {
@@ -11,24 +13,30 @@ object VirtualCss {
   }
 
   def combineVirtualAndRealCss(cssPath: String) = {
-    val definitions = CssParser.loadVirtualCssDefinitions
-
-
-    val output = new StringBuilder()
-    var currentSelector: String = ""
-    parse(virtualCssText) {
-      (selector: String, property: String, value: String) =>
-        selector match {
-          case currentSelector =>
-          case _ => {
-            output ++ s"""$selector {\n"""
-            currentSelector = selector
-          }
+    CssParser.loadVirtualCssDefinitions.map {
+      definitions => {
+        val url: WSRequestHolder = WS.url(cssPath)
+        url.get().map {
+          response =>
+            val output = new StringBuilder()
+            var currentSelector: String = ""
+            CssParser.parse(response.body) {
+              (selector: String, property: String, value: String) => {
+                selector match {
+                  case currentSelector =>
+                  case _ => {
+                    output ++ s"""$selector {\n"""
+                    currentSelector = selector
+                  }
+                }
+                output ++ s"""$property :$value;\n"""
+                val definitions1: List[(String, String)] = definitions(property)
+              }
+            }
+            output.toString()
         }
-        output ++ s"""$property :$value;\n"""
+      }
     }
-    output.toString()
-
   }
 
   def jsForCss(cssPath: String) = {
