@@ -19,13 +19,10 @@ body {
     padding-left: 134px;
     padding-right: 10px;
     color: white;
-    width: 960px;
+    width: 816px;
 
     placement: center;
     text-vertical-align: middle;
-    /*
-    display: table-cell;
-    vertical-align: middle;*/
 }
 
 #header em {
@@ -42,18 +39,13 @@ body {
 }
 
 #main .articles {
-    /*column: 1;
-    float: left;
-    width: 60%;
-    */
+
     width: 740px;
+    margin-bottom: 10px;
     /*width-expand-ratio: 100;*/
 }
 
 .aside {
-    /*column: 2;
-    float: left;
-    */
     width: 200px;
 }
 
@@ -73,7 +65,9 @@ body {
 }
 
 .footer {
-    clear: left;
     font-size: 8pt;
-    margin: 10px 0px;
+    margin-bottom: 10px;
+    width: 960px;
+
+    placement: center;
 }

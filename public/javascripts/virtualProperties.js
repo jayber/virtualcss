@@ -1,7 +1,7 @@
 definitions = {
     layout: function (elem, args) {
         elem.children().css('float', 'left');
-        elem.children().last().css('clear', 'right');
+        elem.next().css('clear', 'left');
     },
     position: function (elem, args) {
         if (args == 'fixed') {
@@ -16,14 +16,14 @@ definitions = {
             container.css('display', 'table-cell');
             container.css('verticalAlign', 'middle');
             container.css('height', elem.height() + 'px');
-            container.css('width', '500px');
         }
     },
     placement: function (elem, args) {
         if (args == 'center') {
-            var unfilled = elem.parent().width() - elem.width();
+            var unfilled = elem.parent().outerWidth() - elem.outerWidth();
             var half = unfilled / 2;
-            elem.css('margin-left', half + 'px')
+            var perc = (half / elem.parent().outerWidth()) * 100;
+            elem.css('margin-left', perc + '%')
         }
     }
 }

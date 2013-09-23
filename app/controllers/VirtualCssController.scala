@@ -13,9 +13,10 @@ object VirtualCssController extends Controller {
     }
   }
 
-  def virtualCss(cssPath: String) = Action {
-    Async {
-      Ok(VirtualCss.cssForCss(cssPath))
-    }
-  }
+  /*
+    def virtualCss(cssPath: String) = Action {
+      Async {
+        Ok(VirtualCss.cssForCss(cssPath))
+      }
+    }*/
 }

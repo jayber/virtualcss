@@ -1,14 +1,38 @@
 package services
 
 
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+
 object VirtualCss {
 
-  def cssForCss(s: String) = {
+  def cssForCss(cssPath: String) = {
+    combineVirtualAndRealCss(cssPath)
+  }
+
+  def combineVirtualAndRealCss(cssPath: String) = {
     val definitions = CssParser.loadVirtualCssDefinitions
+
+
+    val output = new StringBuilder()
+    var currentSelector: String = ""
+    parse(virtualCssText) {
+      (selector: String, property: String, value: String) =>
+        selector match {
+          case currentSelector =>
+          case _ => {
+            output ++ s"""$selector {\n"""
+            currentSelector = selector
+          }
+        }
+        output ++ s"""$property :$value;\n"""
+    }
+    output.toString()
+
   }
 
   def jsForCss(cssPath: String) = {
-    val cssFuture = CssParser.loadCssProperties(cssPath)
+    val cssFuture = CssParser.loadCssPropertiesFromUrl(cssPath)
     val implementationsFuture = JsParser.loadVirtualCssJsImplementations
     implementationsFuture.flatMap(implementations => {
       cssFuture.map(css => {

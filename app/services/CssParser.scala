@@ -3,31 +3,43 @@ package services
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WS.WSRequestHolder
 import play.api.libs.ws.WS
+import scala.concurrent.Future
 
 object CssParser extends Parser {
 
   def loadVirtualCssDefinitions = {
-
-    val csText: String = getFileText("virtualCss.css")
+    val virtualCssText: String = getFileText("virtualCss.css")
+    loadCssPropertiesFromString(virtualCssText)
   }
 
-  def loadCssProperties(cssPath: String) = {
+  def loadCssPropertiesFromUrl(cssPath: String) = {
     val url: WSRequestHolder = WS.url(cssPath)
-    url.get().map(response => CssParser.parse(response.body))
+    val future: Future[String] = url.get().map(response => response.body)
+    loadCssProperties(future)
   }
 
-  def parse(css: String): Map[String, List[(String, String)]] = {
+  def loadCssPropertiesFromString(cssText: String) = {
+    loadCssProperties(Future(cssText))
+  }
+
+  def loadCssProperties(future: Future[String]) = {
+    var selectorStylePairs: Map[String, List[(String, String)]] = Map()
+    future.map(cssText => CssParser.parse(cssText) {
+      (selector: String, property: String, value: String) =>
+        selectorStylePairs += (property.trim -> ((selector.trim, value.trim) :: selectorStylePairs.getOrElse(property.trim, Nil)))
+    }).map((Unit) => selectorStylePairs)
+  }
+
+  def parse(css: String)(onParsedFunction: (String, String, String) => Unit) = {
     val cssText: String = removeComments(css)
     val rules = """(?m)(^[^\{]*)\{([^\}]*)\}""".r
     val line = """([^:]*):(.*)""".r
 
-    var selectorStylePairs: Map[String, List[(String, String)]] = Map()
     for (rules(selector, rule) <- rules findAllIn cssText) {
       for (line(property, value) <- rule.split(";")) {
-        selectorStylePairs += (property.trim -> ((selector.trim, value.trim) :: selectorStylePairs.getOrElse(property.trim, Nil)))
+        onParsedFunction(selector, property, value)
       }
     }
-    selectorStylePairs
   }
 
   def removeComments(css: String): String = {
