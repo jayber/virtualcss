@@ -1,15 +1,18 @@
 package services
 
-import java.io.InputStream
+import java.io.{FileInputStream, InputStream}
 import scala.io.Source
 
 trait Parser {
 
   def getFileText(path: String): String = {
-    val inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream("public/javascripts/virtualProperties.js")
+    var inputStream: InputStream = this.getClass.getClassLoader.getResourceAsStream(path)
+    if (inputStream == null) {
+      inputStream = new FileInputStream(path)
+    }
     try {
       Source.fromInputStream(inputStream, "utf-8").mkString("")
     }
-    finally inputStream.close()
+    finally if (inputStream != null) inputStream.close()
   }
 }

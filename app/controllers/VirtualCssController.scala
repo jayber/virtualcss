@@ -9,14 +9,13 @@ object VirtualCssController extends Controller {
   def virtualCssJs(cssPath: String) = Action {
     Async {
       val jsFuture = VirtualCss.jsForCss(cssPath)
-      jsFuture.map(jsStatementDefinitions => Ok(views.html.jsTemplate(jsStatementDefinitions._2, jsStatementDefinitions._1)))
+      jsFuture.map(jsTextAndStatements => Ok(views.html.jsTemplate(jsTextAndStatements._2, jsTextAndStatements._1)).as("text/javascript"))
     }
   }
 
-  /*
-    def virtualCss(cssPath: String) = Action {
-      Async {
-        Ok(VirtualCss.cssForCss(cssPath))
-      }
-    }*/
+  def virtualCss(cssPath: String) = Action {
+    Async {
+      VirtualCss.cssForCss(cssPath).map(cssText => Ok(cssText).as("text/css"))
+    }
+  }
 }

@@ -1,50 +1,64 @@
 package services
 
-
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WS.WSRequestHolder
 import play.api.libs.ws.WS
-
+import scala.concurrent.Future
 
 object VirtualCss {
 
-  def cssForCss(cssPath: String) = {
+  val argumentRef = """%(\d+?)""".r
+
+  def cssForCss(cssPath: String): Future[String] = {
     combineVirtualAndRealCss(cssPath)
   }
 
   def combineVirtualAndRealCss(cssPath: String) = {
-    CssParser.loadVirtualCssDefinitions.map {
-      definitions => {
-        val url: WSRequestHolder = WS.url(cssPath)
-        url.get().map {
-          response =>
-            val output = new StringBuilder()
-            var currentSelector: String = ""
-            CssParser.parse(response.body) {
-              (selector: String, property: String, value: String) => {
-                selector match {
-                  case currentSelector =>
-                  case _ => {
-                    output ++ s"""$selector {\n"""
-                    currentSelector = selector
-                  }
-                }
-                output ++ s"""$property :$value;\n"""
-                val definitions1: List[(String, String)] = definitions(property)
-              }
-            }
-            output.toString()
-        }
+    CssParser.loadVirtualCssDefinitions.flatMap { definitions =>
+      val url: WSRequestHolder = WS.url(cssPath)
+      url.get().map {
+        response => parseSourceAndMixInVirtualCss(response.body, definitions)
       }
     }
+  }
+
+  def parseSourceAndMixInVirtualCss(sourceText: String, definitions: Map[String, String]) = {
+    val output = new StringBuilder()
+    var currentSelector: String = ""
+    CssParser.parseByProperties(sourceText) { (selector: String, property: String, value: String) =>
+      if ((currentSelector != "") && (currentSelector != selector)) {
+        output append "\n}\n"
+      }
+      if (currentSelector != selector) output append s"""$selector {"""
+      currentSelector = selector
+      output append s"""\n\t$property :$value;"""
+      output append virtualProperties(definitions, property, value)
+    }
+    output append "\n}\n"
+    output.toString()
+  }
+
+  def virtualProperties(virtualCssProperties: Map[String, String], property: String, values: String) = {
+    virtualCssProperties get property match {
+      case Some(body) => substArguments(body, values)
+      case _ => ""
+    }
+  }
+
+  def substArguments(body: String, argumentsBody: String) = {
+    val arguments: Array[String] = argumentsBody.split( """\s""")
+    argumentRef.replaceAllIn(body, { matched =>
+      val argumentIndex = Integer.parseInt(matched group 1)
+      arguments(argumentIndex)
+    })
   }
 
   def jsForCss(cssPath: String) = {
     val cssFuture = CssParser.loadCssPropertiesFromUrl(cssPath)
     val implementationsFuture = JsParser.loadVirtualCssJsImplementations
-    implementationsFuture.flatMap(implementations => {
+    implementationsFuture.flatMap(jsTextAndImplementations => {
       cssFuture.map(css => {
-        (implementations._1, combinePropertiesAndJS(implementations._2, css))
+        (jsTextAndImplementations._1, combinePropertiesAndJS(jsTextAndImplementations._2, css))
       })
     })
   }
@@ -61,7 +75,7 @@ object VirtualCss {
     }).flatten
   }
 
-  def convertToCamelCase(propertyName: String): String = {
+  def convertToCamelCase(propertyName: String) = {
     propertyName.split("-").foldLeft[String]("")((lastThing: String, thisThing: String) => {
       lastThing match {
         case "" => thisThing

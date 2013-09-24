@@ -2,12 +2,16 @@ package services
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
+import play.api.Play
+import play.api.Play.current
 
 object JsParser extends Parser {
 
+  val definitionsPath = Play.configuration.getString("virtualCssJsDefinitionsFileName")
+
   def loadVirtualCssJsImplementations = {
     Future {
-      val jsText: String = getFileText("public/javascripts/virtualProperties.js")
+      val jsText: String = getFileText(definitionsPath.get)
       (jsText, JsParser.parse(jsText))
     }
   }

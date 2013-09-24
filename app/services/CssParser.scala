@@ -4,12 +4,28 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WS.WSRequestHolder
 import play.api.libs.ws.WS
 import scala.concurrent.Future
+import play.api.Play.current
+import play.api.Play
 
 object CssParser extends Parser {
 
+  val rules = """(?m)(^[^\{]*)\{([^\}]*)\}""".r
+  val line = """([^:]*):(.*)""".r
+  val commentRegex = """(?s)/\*.*?\*/"""
+
+  val definitionsPath = Play.configuration.getString("virtualCssDefinitionsFileName")
+
   def loadVirtualCssDefinitions = {
-    val virtualCssText: String = getFileText("virtualCss.css")
-    loadCssPropertiesFromString(virtualCssText)
+    Future {
+      val virtualCssText: String = getFileText(definitionsPath.get)
+      val cssText: String = removeComments(virtualCssText)
+
+      var definitions: Map[String, String] = Map()
+      for (rules(selector, rule) <- rules findAllIn cssText) {
+        definitions += (selector.trim -> rule)
+      }
+      definitions
+    }
   }
 
   def loadCssPropertiesFromUrl(cssPath: String) = {
@@ -24,25 +40,23 @@ object CssParser extends Parser {
 
   def loadCssProperties(future: Future[String]) = {
     var selectorStylePairs: Map[String, List[(String, String)]] = Map()
-    future.map(cssText => CssParser.parse(cssText) {
-      (selector: String, property: String, value: String) =>
-        selectorStylePairs += (property.trim -> ((selector.trim, value.trim) :: selectorStylePairs.getOrElse(property.trim, Nil)))
-    }).map((Unit) => selectorStylePairs)
+    future.map(cssText =>
+      CssParser.parseByProperties(cssText) {
+        (selector: String, property: String, value: String) =>
+          selectorStylePairs += (property -> ((selector, value) :: selectorStylePairs.getOrElse(property.trim, Nil)))
+      }).map((Unit) => selectorStylePairs)
   }
 
-  def parse(css: String)(onParsedFunction: (String, String, String) => Unit) = {
+  def parseByProperties(css: String)(onParsedFunction: (String, String, String) => Unit) = {
     val cssText: String = removeComments(css)
-    val rules = """(?m)(^[^\{]*)\{([^\}]*)\}""".r
-    val line = """([^:]*):(.*)""".r
-
     for (rules(selector, rule) <- rules findAllIn cssText) {
       for (line(property, value) <- rule.split(";")) {
-        onParsedFunction(selector, property, value)
+        onParsedFunction(selector.trim, property.trim, value.trim)
       }
     }
   }
 
   def removeComments(css: String): String = {
-    css.replaceAll( """(?s)/\*.*?\*/""", "")
+    css.replaceAll(commentRegex, "")
   }
 }
