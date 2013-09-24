@@ -7,7 +7,7 @@ import scala.concurrent.Future
 
 object VirtualCss {
 
-  val argumentRef = """%(\d+?)""".r
+  val argumentRef = """\*(\d+?)""".r
 
   def cssForCss(cssPath: String): Future[String] = {
     combineVirtualAndRealCss(cssPath)
