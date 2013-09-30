@@ -15,8 +15,8 @@ object VirtualCss {
 
   def combineVirtualAndRealCss(cssPath: String) = {
     CssParser.loadVirtualCssDefinitions.flatMap { definitions =>
-      val url: WSRequestHolder = WS.url(cssPath)
-      url.get().map {
+      val sourceUrl: WSRequestHolder = WS.url(cssPath)
+      sourceUrl.get().map {
         response => parseSourceAndMixInVirtualCss(response.body, definitions)
       }
     }
@@ -49,7 +49,8 @@ object VirtualCss {
     val arguments: Array[String] = argumentsBody.split( """\s""")
     argumentRef.replaceAllIn(body, { matched =>
       val argumentIndex = Integer.parseInt(matched group 1)
-      arguments(argumentIndex)
+      if (argumentIndex < arguments.size) arguments(argumentIndex)
+      else ""
     })
   }
 
