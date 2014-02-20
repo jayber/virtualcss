@@ -6,16 +6,14 @@ import services.VirtualCss
 
 object VirtualCssController extends Controller {
 
-  def virtualCssJs(cssPath: String) = Action {
-    Async {
+  def virtualCssJs(cssPath: String) =
+    Action.async {
       val jsFuture = VirtualCss.jsForCss(cssPath)
       jsFuture.map(jsTextAndStatements => Ok(views.html.jsTemplate(jsTextAndStatements._2, jsTextAndStatements._1)).as("text/javascript"))
     }
-  }
 
-  def virtualCss(cssPath: String) = Action {
-    Async {
-      VirtualCss.cssForCss(cssPath).map(cssText => Ok(cssText).as("text/css"))
+  def virtualCss(cssPath: String) =   Action.async {
+
+    VirtualCss.cssForCss(cssPath).map(cssText => Ok(cssText).as("text/css"))
     }
-  }
 }
